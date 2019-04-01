@@ -20,94 +20,91 @@ ui <- fluidPage(
   # Sidebar with a slider input for number of bins 
   sidebarLayout(
     sidebarPanel(
-   #   sliderInput("bmax",
-    #              "Maximum clearance rate of fish (m^3 / day)",
-     #             min = 10^-2,
-      #            max = 100,
-       #           step=0.01,
-        #          value = 1)
-      #,
-      
-      shinyWidgets::sliderTextInput("bmax","Maximum clearance rate of fish (m^3 / day)",
-                                    choices=c(10^-2, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100),
-                                    selected=1, grid = T),
-      shinyWidgets::sliderTextInput("gmax","Maximum growth rate of prey (m^3 / day)",
-                                    choices=10^-2*(1:100),
-                                    selected=0.1, grid = T)
-      ,
-      sliderInput("N0",
-                  "Average concentration of zooplankton in the water column (m^-3)",
-                  min = 100,
-                  max = 10000,
-                  step = 10,
-                  value = 5000)
-      ,
-      sliderInput("P0",
-                  "Average concentration of fish in the water column (m^-3)",
-                  min = 0.1,
-                  max = 10,
-                  step = 0.1,
-                  value = 1)
-      ,
-      sliderInput("M",
-                   "Number of depth bins (-)",
-                   min = 2,
-                   max = 100,
-                   value = 30,
-                   step = 1),
-      sliderInput("sigma",
-                  "Fraction of daytime during a day (-)",
-                  min = 0,
-                  max = 1,
-                  value = 0.6,
-                  step = 0.1),
+      h2("Define the environment"),
       sliderInput("H",
                   "Depth of the water column (m)",
                   min = 20,
                   max = 1000,
                   value = 300,
                   step = 10),
+      sliderInput("M",
+                  "Number of depth bins (-)",
+                  min = 2,
+                  max = 100,
+                  value = 5,
+                  step = 1),
       sliderInput("Lmax",
                   "Light irradiance at the surface during daytime (W/m^2)",
                   min = 20,
                   max = 800,
                   value = 100,
                   step = 10),
-
-      shinyWidgets::sliderTextInput("L0","Half saturation parameter for the fish visual range (W/m^2)",
-                                    choices=10^-2*(1:1000),
-                                    selected=1, grid = T),
       shinyWidgets::sliderTextInput("klight","Light attenuation coefficient (m^-1)",
                                     choices=10^-2*(1:100),
                                     selected=0.07, grid = T),
+      sliderInput("sigma",
+                  "Fraction of daytime during a day (-)",
+                  min = 0,
+                  max = 1,
+                  value = 0.6,
+                  step = 0.1),
       shinyWidgets::sliderTextInput("rho","Fractional difference between night and day light levels",
                                     choices=c(10^-6,10^-5,10^-4,10^-3,10^-2),
                                     selected=10^-3, grid = T),
       
+      
+      
+      h2("Define the resource field"),
+      sliderInput("zo",
+                  "Depth of mixed layer (m)",
+                  min = 0,
+                  max = 200,
+                  value = 50,
+                  step = 10),
+      sliderInput("zm",
+                  "Thickness of the mixed layer transition zone",
+                  min = 1,
+                  max = 100,
+                  value = 10,
+                  step = 1),
+      shinyWidgets::sliderTextInput("gmax","Maximum growth rate of prey (m^3 / day)",
+                                    choices=10^-2*(1:100),
+                                    selected=0.1, grid = T),
+      
+      
+      
+      
+      h2("Define the characteristics of the prey and predator populations"),
+       sliderInput("N0",
+                  "Average concentration of zooplankton in the water column (m^-3)",
+                  min = 100,
+                  max = 10000,
+                  step = 10,
+                  value = 5000),
+      sliderInput("P0",
+                  "Average concentration of fish in the water column (m^-3)",
+                  min = 0.1,
+                  max = 10,
+                  step = 0.1,
+                  value = 1),
+      shinyWidgets::sliderTextInput("bmax","Maximum clearance rate of fish (m^3 / day)",
+                                    choices=c(10^-2, 0.05, 0.1, 0.5, 1, 5, 10, 50, 100),
+                                    selected=1, grid = T),
+      shinyWidgets::sliderTextInput("L0","Half saturation parameter for the fish visual range (W/m^2)",
+                                    choices=10^-2*(1:1000),
+                                    selected=1, grid = T),
       shinyWidgets::sliderTextInput("mu","Density-dependent mortality rate for predators (m^3/day)",
                                     choices=c(10^-6,10^-5,10^-4,10^-3,10^-2,10^-1,1,10),
                                     selected=10^-3, grid = T),
       shinyWidgets::sliderTextInput("C","Unitary migration cost (m^-1 day^-1)",
                                     choices=c(10^-8,10^-7,10^-6,10^-5,10^-4,10^-3),
                                     selected=10^-5, grid = T),
-    sliderInput("eta",
+      sliderInput("eta",
                 "Predator growth efficiency",
                 min = 10^-4,
                 max = 10^-1,
                 value = 10^-2,
-                step = 10^-2),
-    sliderInput("zo",
-                "Depth of mixed layer (m)",
-                min = 0,
-                max = 200,
-                value = 50,
-                step = 10),
-    sliderInput("zm",
-                "Thickness of the mixed layer transition zone",
-                min = 1,
-                max = 100,
-                value = 10,
-                step = 1)
+                step = 10^-2)
     
   ),
     
@@ -165,10 +162,10 @@ server <- function(input, output) {
   FP <- GP - MP;
   
   #Now the forloop for the replicator equation
-  for (i in 1:10000){
+  for (i in 1:5000){
     FNmax <- max(max(FN)); FNmin = min(min(FN));
     FPmax <- max(max(FP)); FPmin = min(min(FP));
-    fact <- 0.5 / max(c(FNmax, FPmax, -FNmin, -FPmin)); #max 20% increase per time step
+    fact <- 0.3 / max(c(FNmax, FPmax, -FNmin, -FPmin)); #max 20% increase per time step
     
     N <- N + fact* FN*N;
     P <- P + fact* FP*P;
